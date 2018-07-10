@@ -23,6 +23,26 @@ Rozwiązania wysyłamy tak samo, jak prework, tylko że w jednym Pull Requeście
 import cmd, sys
 import turtle
 
+class Invoker(object):
+    def __init__(self):
+        self.recording = False
+        self.history = []
+        
+    def record(self):
+        print("Recording started")
+        self.recording = True
+        
+    def stop(self):
+        print("Recording stopped")
+        self.recording = False 
+        
+    def playback(self):
+        print("playback")
+        for command in self.history:
+            print(f"Performing recorded action: {command}")
+            TurtleShell(command)
+
+
 class TurtleShell(cmd.Cmd):
     intro = 'Welcome to the turtle shell.   Type help or ? to list commands.\n'
     prompt = '(turtle) '
@@ -58,5 +78,32 @@ class TurtleShell(cmd.Cmd):
         turtle.bye()
         return True
 
+class Command(object):
+    def __init__(self, inv, ts):
+        self.inv = inv
+        self.ts = ts
+        
+    def action(self, command_name, param):
+        self.command_name = command_name
+        if inv.recording == True:
+            print (f"saving: {command_name}")
+            inv.history.append([command_name, param])
+        print (f"performing action: {command_name}")
+        getattr(ts, command_name)(param)
+    
+    
 if __name__ == '__main__':
-    TurtleShell().cmdloop()    
+    
+    inv = Invoker()
+    ts = TurtleShell()
+    command = Command(inv, ts)
+    command.action("do_home", 0)
+    command.action("do_forward", 10)
+    inv.record()
+    command.action("do_forward", 10)
+    command.action("do_circle", 10)
+    inv.stop()
+    command.action("do_heading", 10)
+    inv.playback()
+
+    #TurtleShell().cmdloop() 
